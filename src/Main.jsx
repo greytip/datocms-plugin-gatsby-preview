@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
 import connectToDatoCms from './connectToDatoCms';
 import './style.sass';
 
-const capitalizeFirstLetter = str => `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+const urljoin = require('url-join');
+
 
 const checkEndOfUrl = (url) => {
   if (url === '') return url;
@@ -24,6 +24,7 @@ export default class Main extends Component {
   state = {
     slug: '',
     gatsbySiteBaseUrl: '',
+    moduleUrlPath: '',
   }
 
   componentDidMount() {
@@ -35,9 +36,16 @@ export default class Main extends Component {
       },
     } = plugin;
 
+    const {
+      parameters: {
+        instance: { moduleUrlPath },
+      },
+    } = plugin;
+
     if (developmentMode) {
       console.error(`Gatsy site Base URL: ${gatsbySiteBaseUrl}`);
       console.error(`Is Development Mode: ${developmentMode}`);
+      console.error(`Instance Moudule URL Path: ${moduleUrlPath}`);
     }
 
     this.unsubscribe = plugin.addFieldChangeListener('slug', (value) => {
@@ -46,6 +54,7 @@ export default class Main extends Component {
     this.setState({
       slug,
       gatsbySiteBaseUrl: checkEndOfUrl(gatsbySiteBaseUrl),
+      moduleUrlPath,
     });
   }
 
@@ -53,22 +62,16 @@ export default class Main extends Component {
     this.unsubscribe();
   }
 
-  handleClick = name => () => {
-    const visible = name ? `isVisible${capitalizeFirstLetter(name)}FullLink` : 'isVisibleFullLink';
-
-    this.setState(prevState => ({
-      [visible]: !prevState[visible],
-    }));
-  }
-
   render() {
     const {
       slug,
       gatsbySiteBaseUrl,
+      moduleUrlPath,
     } = this.state;
 
     // const fullLink = `${gatsbySiteBaseUrl}${slug}`;
-    const fullLink = gatsbySiteBaseUrl ? new URL(slug, gatsbySiteBaseUrl).href : null;
+    // const fullLink = gatsbySiteBaseUrl ? new URL(slug, gatsbySiteBaseUrl).href : null;
+    const fullLink = urljoin(gatsbySiteBaseUrl, moduleUrlPath, slug);
     return (
       <div className="container">
         <h1>Preview URL:</h1>
