@@ -43,7 +43,7 @@
           "id": "developmentMode",
           "label": "Development mode",
           "type": "boolean",
-          "required": true,
+          "required": false,
           "default": false,
           "hint": "Shows debug messages in console"
         },
@@ -63,6 +63,13 @@
           "type": "string",
           "required": false,
           "hint": "Path of the module. This path will be add after the base URL and before the slug value."
+        },
+        {
+          "id": "slugPrefix",
+          "label": "Slug Prefix",
+          "type": "string",
+          "required": false,
+          "hint": "This static value will be prefixed with the slug file value while making preview URL."
         }
       ]
     }

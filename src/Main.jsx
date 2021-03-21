@@ -22,14 +22,17 @@ export default class Main extends Component {
   }
 
   state = {
+    region: '',
     slug: '',
     gatsbySiteBaseUrl: '',
     moduleUrlPath: '',
+    slugPrefix: '',
   }
 
   componentDidMount() {
     const { plugin } = this.props;
     const slug = plugin.getFieldValue('slug');
+    const region = plugin.getFieldValue('region');
     const {
       parameters: {
         global: { gatsbySiteBaseUrl, developmentMode },
@@ -38,7 +41,7 @@ export default class Main extends Component {
 
     const {
       parameters: {
-        instance: { moduleUrlPath },
+        instance: { moduleUrlPath, slugPrefix },
       },
     } = plugin;
 
@@ -46,39 +49,63 @@ export default class Main extends Component {
       console.error(`Gatsy site Base URL: ${gatsbySiteBaseUrl}`);
       console.error(`Is Development Mode: ${developmentMode}`);
       console.error(`Instance Moudule URL Path: ${moduleUrlPath}`);
+      console.error(`Slug Prefix: ${slugPrefix}`);
+      console.error(`Region: ${region}`);
     }
 
-    this.unsubscribe = plugin.addFieldChangeListener('slug', (value) => {
+    this.unsubscribeSlug = plugin.addFieldChangeListener('slug', (value) => {
       this.setState({ slug: value });
     });
+
+    this.unsubscribeRegion = plugin.addFieldChangeListener('region', (value) => {
+      this.setState({ region: value });
+    });
+
     this.setState({
+      region,
       slug,
       gatsbySiteBaseUrl: checkEndOfUrl(gatsbySiteBaseUrl),
       moduleUrlPath,
+      slugPrefix,
     });
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    this.unsubscribeSlug();
+    this.unsubscribeRegion();
   }
 
   render() {
     const {
+      region,
       slug,
       gatsbySiteBaseUrl,
       moduleUrlPath,
+      slugPrefix,
     } = this.state;
 
     // const fullLink = `${gatsbySiteBaseUrl}${slug}`;
     // const fullLink = gatsbySiteBaseUrl ? new URL(slug, gatsbySiteBaseUrl).href : null;
-    const fullLink = urljoin(gatsbySiteBaseUrl, moduleUrlPath, slug);
+    let regionPath = region;
+    if (regionPath) {
+      regionPath = regionPath.trim();
+      if (regionPath.indexOf(',') > -1) {
+        [regionPath] = regionPath.split(',').filter(item => item !== 'india');
+      } else if (region === 'india') {
+        regionPath = '';
+      }
+    } else {
+      regionPath = '';
+    }
+    const slugPath = `${slugPrefix}${slug}`;
+    const fullLink = urljoin(gatsbySiteBaseUrl, regionPath, moduleUrlPath, slugPath);
     return (
       <div className="container">
         <h1>Preview URL:</h1>
         {gatsbySiteBaseUrl && (
           <>
             <div className="link-wrap">
-              <a href={fullLink} title={slug} target="_blank" rel="noopener noreferrer" className="preview-link">
+              <a href={fullLink} title={slugPath} target="_blank" rel="noopener noreferrer" className="preview-link">
                 {fullLink}
               </a>
             </div>
