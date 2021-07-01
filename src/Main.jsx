@@ -5,10 +5,6 @@ import './style.sass';
 
 const urljoin = require('url-join');
 
-const getNakedId = (id) => {
-  const result = id.match(/\d+/);
-  return result ? result[0] : '';
-};
 
 const checkEndOfUrl = (url) => {
   if (url === '') return url;
@@ -51,8 +47,17 @@ export default class Main extends Component {
     let slug = slugFieldName ? plugin.getFieldValue(slugFieldName) : plugin.getFieldValue('slug');
 
     if (slugFieldName.toUpperCase() === 'ID') {
-      slug = getNakedId(slug);
+      slug = plugin.itemId;
+      this.unsubscribeSlug = () => {};
+    } else {
+      this.unsubscribeSlug = plugin.addFieldChangeListener(slugFieldName, (value) => {
+        this.setState({ slug: value });
+      });
     }
+
+    this.unsubscribeRegion = plugin.addFieldChangeListener('region', (value) => {
+      this.setState({ region: value });
+    });
 
     if (developmentMode) {
       console.log(`Gatsy site Base URL: ${gatsbySiteBaseUrl}`);
@@ -63,15 +68,6 @@ export default class Main extends Component {
       console.log(`Region: ${region}`);
       console.log(`slug: ${slug}`);
     }
-
-    this.unsubscribeSlug = plugin.addFieldChangeListener('slug', (value) => {
-      this.setState({ slug: value });
-    });
-
-    this.unsubscribeRegion = plugin.addFieldChangeListener('region', (value) => {
-      this.setState({ region: value });
-    });
-
     this.setState({
       region,
       slug,
@@ -109,7 +105,7 @@ export default class Main extends Component {
       regionPath = '';
     }
     const slugPath = `${slugPrefix}${slug}`;
-    const fullLink = urljoin(gatsbySiteBaseUrl, regionPath, moduleUrlPath, slugPath);
+    const fullLink = slug && slug.startsWith('http') ? slug : urljoin(gatsbySiteBaseUrl, regionPath, moduleUrlPath, slugPath);
     return (
       <div className="container">
         <h1>Preview URL:</h1>
