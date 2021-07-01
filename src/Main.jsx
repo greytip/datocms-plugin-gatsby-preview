@@ -5,6 +5,10 @@ import './style.sass';
 
 const urljoin = require('url-join');
 
+const getNakedId = (id) => {
+  const result = id.match(/\d+/);
+  return result ? result[0] : '';
+};
 
 const checkEndOfUrl = (url) => {
   if (url === '') return url;
@@ -31,7 +35,7 @@ export default class Main extends Component {
 
   componentDidMount() {
     const { plugin } = this.props;
-    const slug = plugin.getFieldValue('slug');
+
     const region = plugin.getFieldValue('region');
     const {
       parameters: {
@@ -41,16 +45,23 @@ export default class Main extends Component {
 
     const {
       parameters: {
-        instance: { moduleUrlPath, slugPrefix },
+        instance: { moduleUrlPath, slugFieldName, slugPrefix },
       },
     } = plugin;
+    let slug = slugFieldName ? plugin.getFieldValue(slugFieldName) : plugin.getFieldValue('slug');
+
+    if (slugFieldName.toUpperCase() === 'ID') {
+      slug = getNakedId(slug);
+    }
 
     if (developmentMode) {
-      console.error(`Gatsy site Base URL: ${gatsbySiteBaseUrl}`);
-      console.error(`Is Development Mode: ${developmentMode}`);
-      console.error(`Instance Moudule URL Path: ${moduleUrlPath}`);
-      console.error(`Slug Prefix: ${slugPrefix}`);
-      console.error(`Region: ${region}`);
+      console.log(`Gatsy site Base URL: ${gatsbySiteBaseUrl}`);
+      console.log(`Is Development Mode: ${developmentMode}`);
+      console.log(`Instance Moudule URL Path: ${moduleUrlPath}`);
+      console.log(`Slug Field Name: ${slugFieldName}`);
+      console.log(`Slug Prefix: ${slugPrefix}`);
+      console.log(`Region: ${region}`);
+      console.log(`slug: ${slug}`);
     }
 
     this.unsubscribeSlug = plugin.addFieldChangeListener('slug', (value) => {
