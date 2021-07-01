@@ -1,7 +1,7 @@
 {
   "name": "datocms-plugin-gatsby-preview",
   "homepage": "https://github.com/greytip/datocms-plugin-gatsby-preview",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "This plug in will generate preview url for the gatsby site using the slug field.",
   "main": "index.js",
   "scripts": {
